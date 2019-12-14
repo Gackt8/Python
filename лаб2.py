@@ -1,153 +1,291 @@
-# %% 5.1
-ip = input('Vvedite IP: ')
-ip1 = int(ip.split('.')[0])
 
-if 1 <= ip1 <= 127:
-    print('unicast (class A)')
-elif 128 <= ip1 <= 191:
-    print('unicast (class B)')
-elif 192 <= ip1 <= 223:
-    print('unicast (class C)')
-elif 224 <= ip1 <= 239:
-    print('multicast (class D)')
-elif ip == '255.255.255.255':
-    print('local broadcast')
-elif ip == '0.0.0.0':
-    print('unassigned')
-else:
-    print('unused')
+    
+# %% 7.1
+from pprint import pprint
+print('7.1')
 
-# %% 5.1a
-flag = True
-ip = input('Vvedite IP: ')
+access_dict = {'FastEthernet0/12': 10,
+               'FastEthernet0/14': 11,
+               'FastEthernet0/16': 17,
+               'FastEthernet0/17': 150}
 
-if ip.count('.') != 3:
-    flag = False
-if flag:
-    for i in ip.split('.'):
-        if not i.isdigit():
-            flag = False
-if flag:
-    for i in ip.split('.'):
-        if not 0 <= int(i) <= 255:
-            flag = False
 
-if flag:
-    ip1 = int(ip.split('.')[0])
-    if 1 <= ip1 <= 127:
-        print('unicast (class A)')
-    elif 128 <= ip1 <= 191:
-        print('unicast (class B)')
-    elif 192 <= ip1 <= 223:
-        print('unicast (class C)')
-    elif 224 <= ip1 <= 239:
-        print('multicast (class D)')
-    elif ip == '255.255.255.255':
-        print('local broadcast')
-    elif ip == '0.0.0.0':
-        print('unassigned')
-    else:
-        print('unused')
-else:
-    print('Incorrect	IPv4	address')
+def aceess_port_congig_generation(access: dict) -> list:
+    out = []
 
-# %% 5.1b
-flag = True
+    access_template = ['switchport mode access',
+                       'switchport access vlan',
+                       'switchport	nonegotiate',
+                       'spanning-tree portfast',
+                       'spanning-tree bpduguard enable']
 
-while 1:
-    ip = input('Vvedite IP: ')
-    if ip.count('.') != 3:
-        flag = False
-    if flag:
-        for i in ip.split('.'):
-            if not i.isdigit():
-                flag = False
-    if flag:
-        for i in ip.split('.'):
-            if not 0 <= int(i) <= 255:
-                flag = False
-    if flag:
-        break
-    else:
-        print('Incorrect	IPv4	address')
-        print('Try again or press Ctrl + C for EXIT')
+    for j, m in access.items():
+        out.append('interface ' + j)
+        for i in access_template:
+            if i == access_template[1]:
+                out.append(f'{i} {m}')
+            else:
+                out.append(i)
 
-ip1 = int(ip.split('.')[0])
+    return out
 
-if 1 <= ip1 <= 127:
-    print('unicast (class A)')
-elif 128 <= ip1 <= 191:
-    print('unicast (class B)')
-elif 192 <= ip1 <= 223:
-    print('unicast (class C)')
-elif 224 <= ip1 <= 239:
-    print('multicast (class D)')
-elif ip == '255.255.255.255':
-    print('local broadcast')
-elif ip == '0.0.0.0':
-    print('unassigned')
-else:
-    print('unused')
 
-# %% 5.1c
-while True:
-    ip = input('Vvedite IP: ')
+pprint(aceess_port_congig_generation(access_dict))
 
-    if ip.count('.') == 3 \
-            and all([i.isdigit() for i in ip.split('.')]) \
-            and all([0 <= int(i) <= 255 for i in ip.split('.')]):
-        break
-    else:
-        print('Incorrect	IPv4	address')
-        print('Try again or press Ctrl + C for EXIT')
+# %% 7.1a
+from pprint import pprint
+print('7.1a')
 
-ip1 = int(ip.split('.')[0])
+access_dict = {'FastEthernet0/12': 10,
+               'FastEthernet0/14': 11,
+               'FastEthernet0/16': 17,
+               'FastEthernet0/17': 150}
 
-if 1 <= ip1 <= 127:
-    print('unicast (class A)')
-elif 128 <= ip1 <= 191:
-    print('unicast (class B)')
-elif 192 <= ip1 <= 223:
-    print('unicast (class C)')
-elif 224 <= ip1 <= 239:
-    print('multicast (class D)')
-elif ip == '255.255.255.255':
-    print('local broadcast')
-elif ip == '0.0.0.0':
-    print('unassigned')
-else:
-    print('unused')
 
-# %% 5.2
-mac = ['aabb:cc80:7000', 'aabb:dd80:7340', 'aabb:ee80:7000', 'aabb:ff80:7000']
-print(mac)
-mac_cisco = [i.replace(':', '.') for i in mac]
-print(mac_cisco)
+def aceess_port_congig_generation(access: dict, psecurity: bool = False) -> list:
+    out = []
 
-# %% 5.3
-access_template = ['switchport mode access', 'switchport access vlan', 'spanning-tree portfast',
-                   'spanning-tree bpduguard enable']
-trunk_template = ['switchport trunk encapsulation dot1q', 'switchport mode trunk', 'switchport trunk allowed vlan']
-fast_int = {'access': {'0/12': '10', '0/14': '11', '0/16': '17', '0/17': '150'},
-            'trunk': {'0/1': ['add', '10', '20'], '0/2': ['only', '11', '30'], '0/4': ['del', '17']}}
+    access_template = ['switchport mode access',
+                       'switchport access vlan',
+                       'switchport	nonegotiate',
+                       'spanning-tree portfast',
+                       'spanning-tree bpduguard enable']
 
-for intf, vlan in fast_int['access'].items():
-    print('interface FastEthernet' + intf)
-    for command in access_template:
-        if command.endswith('access vlan'):
-            print('	{}	{}'.format(command, vlan))
+    port_security = ['switchport port-security maximum 2',
+                     'switchport port-security violation restrict',
+                     'switchport port-security']
+
+    for j, m in access.items():
+        out.append('interface ' + j)
+        for i in access_template + port_security:
+            if i == access_template[1]:
+                out.append(f'{i} {m}')
+            else:
+                out.append(i)
+
+    return out
+
+
+pprint(aceess_port_congig_generation(access_dict))
+
+# %% 7.1b
+from pprint import pprint
+print('7.1b')
+
+access_dict = {'FastEthernet0/12': 10,
+               'FastEthernet0/14': 11,
+               'FastEthernet0/16': 17,
+               'FastEthernet0/17': 150}
+
+
+def aceess_port_congig_generation(access: dict, psecurity: bool = False) -> dict:
+    out = dict()
+
+    access_template = ['switchport mode access',
+                       'switchport access vlan',
+                       'switchport	nonegotiate',
+                       'spanning-tree portfast',
+                       'spanning-tree bpduguard enable']
+
+    port_security = ['switchport port-security maximum 2',
+                     'switchport port-security violation restrict',
+                     'switchport port-security']
+
+    for j, m in access.items():
+        out[j] = []
+        out[j].append('interface ' + j)
+        for i in access_template + port_security:
+            if i == access_template[1]:
+                out[j].append(f'{i} {m}')
+            else:
+                out[j].append(i)
+
+    return out
+
+
+pprint(aceess_port_congig_generation(access_dict))
+
+# %% 7.2
+print('7.2')
+
+trunk = {'FastEthernet0/1': [10, 20],
+         'FastEthernet0/2': [11, 30],
+         'FastEthernet0/4': [17]}
+
+
+def trunk_port_config_generator(trunk: dict) -> list:
+    out = []
+
+    trunk_template = ['switchport trunk encapsulation dot1q',
+                      'switchport mode trunk',
+                      'switchport trunk native vlan 999',
+                      'switchport trunk allowed vlan']
+
+    for j, m in trunk.items():
+        out.append('interface ' + j)
+        for i in trunk_template:
+            if i == trunk_template[-1]:
+                out.append(f'{i} {str(m).replace("[", "").replace("]", "")}')
+            else:
+                out.append(i)
+    return out
+
+
+pprint(trunk_port_config_generator(trunk))
+
+# %% 7.2a
+print('7.2a')
+
+trunk = {'FastEthernet0/1': [10, 20],
+         'FastEthernet0/2': [11, 30],
+         'FastEthernet0/4': [17]}
+
+
+def trunk_port_config_generator(trunk: dict) -> dict:
+    out = dict()
+
+    trunk_template = ['switchport trunk encapsulation dot1q',
+                      'switchport mode trunk',
+                      'switchport trunk native vlan 999',
+                      'switchport trunk allowed vlan']
+
+    for j, m in trunk.items():
+        out[j] = []
+        out[j].append('interface ' + j)
+        for i in trunk_template:
+            if i == trunk_template[-1]:
+                out[j].append(f'{i} {str(m).replace("[", "").replace("]", "")}')
+            else:
+                out[j].append(i)
+    return out
+
+
+pprint(trunk_port_config_generator(trunk))
+
+
+# %% 7.3
+print('7.3')
+
+def get_int_vlan_map(file_name: str) -> (dict, dict):
+
+    access = dict()
+    trunk = dict()
+
+    with open(file_name, 'r') as f:
+        file = f.read().split('!')
+        #print(file)
+    for i in file:
+        if 'Ethernet' in i:
+            #print(i)
+            if 'access' in i:
+                access['Fast'+i.split()[1]] = i[i.index('vlan')+1:][0]
+            elif 'trunk' in i:
+                i = i.split()
+                trunk['Fast'+i[1]] = i[i.index('vlan')+1:][0]
+    
+    return access, trunk
+
+
+print(get_int_vlan_map('config_sw1.txt'))
+
+# %% 7.3a
+print('7.3a')
+def get_int_vlan_map(file_name: str) -> (dict, dict):
+
+    access = dict()
+    trunk = dict()
+
+    with open(file_name, 'r') as f:
+        file = f.read().split('!')
+        #print(file)
+    for i in file:
+        if 'Ethernet' in i:
+            #print(i)
+            if 'access' in i:
+                access['Fast'+i.split()[1]] = i[i.index('vlan')+1:][0]
+            elif 'trunk' in i:
+                i = i.split()
+                trunk['Fast'+i[1]] = i[i.index('vlan')+1:][0]
+            elif 'duplex auto' in i:
+                access['Fast'+i.split()[1]] = 1
+    
+    return access, trunk
+
+
+print(get_int_vlan_map('config_sw1.txt'))
+
+# %% 7.4
+from pprint import pprint
+print('7.4')
+ignore = ['duplex', 'alias', 'Current configuration']
+
+def ignore_command(command: str, ignore: list = ignore) -> bool:
+    for word in ignore:
+        if word in command:
+            return True
+    return False
+
+def config_to_dict(config):
+
+    text = []
+    output = dict()
+
+    with open(config) as f:
+        file = f.readlines()
+        for i in file:
+            if not ignore_command(i) and '!' not in i and i != '\n':
+                i = i.replace('\n', '')
+                text.append(i)
+    
+    name = ''
+    for i in text:
+        if i[0] != ' ':
+            name = i
+            output[name] = []
         else:
-            print('	{}'.format(command))
+            output[name].append(i)
 
-for intf, val in fast_int['trunk'].items():
-    print('interface FastEthernet' + intf)
-    for com in trunk_template:
-        if not com.endswith('vlan'):
-            print(' ' * 7, com)
-        else:
-            if val[0] == 'add':
-                print(' ' * 7, com, 'add', ','.join(val[1:]))
-            elif val[0] == 'only':
-                print(' ' * 7, com, 'remove', ','.join(val[1:]))
-            elif val[0] == 'del':
-                print(' ' * 7, com, ','.join(val[1:]))
+
+    return output
+
+pprint(config_to_dict('config_sw1.txt'))
+
+# %% 7.4a
+from pprint import pprint
+print('7.4')
+ignore = ['duplex', 'alias', 'Current configuration']
+
+def ignore_command(command: str, ignore: list = ignore) -> bool:
+    for word in ignore:
+        if word in command:
+            return True
+    return False
+
+def config_to_dict(config):
+
+    text = []
+    output = dict()
+
+    with open(config) as f:
+        file = f.readlines()
+        for i in file:
+            if not ignore_command(i) and '!' not in i and i != '\n':
+                i = i.replace('\n', '')
+                text.append(i)
+    
+    name = ''
+    second_name = ''
+    for i in text:
+        if i[0] != ' ':
+            name = i
+            output[name] = {}
+        elif i[0] == ' ' and i[1] != ' ':
+            second_name = i
+            output[name][second_name] = []
+        elif i[0] == ' ' and i[1] == ' ':
+            output[name][second_name].append(i)
+
+
+    return output
+
+pprint(config_to_dict('config_sw1.txt'))
